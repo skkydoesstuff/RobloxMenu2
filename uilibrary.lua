@@ -329,7 +329,6 @@ do
 						Transparency = 1,
 						ZIndex = 1;
 						Text = name or 'Button',
-						ZIndex = 1;
 					}, {library.alldrawings})
 				end
 				--functions 
@@ -577,6 +576,87 @@ do
 				table_insert(tab.options.stored, slider)
 				return slider;
 			end;
+			function tab:AddKeybind(prop)
+				tab.options.amount += 1
+				local keybind = {
+					hovered = false,
+					key = prop.default or "F", -- default bind
+					text = prop.text or "Keybind",
+					callback = prop.callback or function() end,
+					drawings = {},
+				}
+
+				-- drawings
+				do
+					keybind.drawings.base = createDrawing('Square', {
+						Visible = false,
+						Color = color3_fromrgb(0, 0, 0),
+						Transparency = 0.5,
+						Filled = true,
+						Thickness = 1,
+						Position = tab.drawings.base.Position + vector2_new(menuwidth + 10, tab.options.amount*15),
+						Size = vector2_new(menuwidth, 15),
+						ZIndex = 0;
+					}, {library.alldrawings})
+
+					keybind.drawings.text = createDrawing('Text', {
+						Visible = false,
+						Color = color3_fromrgb(255, 255, 255),
+						Font = 1,
+						Outline = true;
+						Center = false;
+						OutlineColor = color3_fromrgb(0, 0, 0);
+						Position = keybind.drawings.base.Position,
+						Size = 14,
+						Transparency = 1,
+						ZIndex = 1;
+						Text = keybind.text .. ": " .. keybind.key;
+					}, {library.alldrawings})
+				end
+
+				-- functions
+				do
+					-- update display
+					keybind.updateText = function()
+						keybind.drawings.text.Text = keybind.text .. ": " .. keybind.key;
+					end
+
+					-- change key (when hovered + pressing Return)
+					keybind.setKey = function()
+						if not keybind.hovered or not tab.opened then return end
+						keybind.drawings.text.Text = keybind.text .. ": ..."
+						
+						local connection
+						connection = userinputservice.InputBegan:Connect(function(input, gpe)
+							if not gpe and input.KeyCode.Name ~= "Return" then
+								keybind.key = input.KeyCode.Name
+								keybind.updateText()
+								connection:Disconnect()
+							end
+						end)
+					end
+
+					-- trigger keybind
+					userinputservice.InputBegan:Connect(function(input, gpe)
+						if not gpe and input.KeyCode.Name == keybind.key then
+							keybind.callback()
+						end
+					end)
+				end
+
+				-- functionality
+				do
+					library:dInput("Return", keybind.setKey)
+					if (tab.options.amount == 1) then
+						keybind.hovered = true
+						keybind.drawings.base.Color = color3_fromrgb(255, 0, 0);
+					end
+				end
+
+				table_insert(tab.options.stored, keybind)
+				return keybind
+			end;
+
                   function tab:AddDropdown(prop)
                         tab.options.amount += 1
 				local dropdown = {
