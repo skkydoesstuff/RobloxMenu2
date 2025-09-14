@@ -8,9 +8,6 @@ local uis = game:GetService("UserInputService")
 local players = game:GetService("Players")
 local localPlayer = players.LocalPlayer
 local windowFocused = false
-
-local humanoid = localPlayer.Character:FindFirstChild("Humanoid")
-
 -- test
 cas:BindActionAtPriority("DisableArrowKeys", function()
 	return Enum.ContextActionResult.Sink
@@ -29,7 +26,9 @@ local partFlySpeed = 10
 local moveDirection = Vector3.new(0, 0, 0)
 local safetyPart = nil
 
-local defaultJumpHeight = humanoid.JumpHeight
+local h = localPlayer.Character:FindFirstChild("Humanoid")
+
+local defaultJumpHeight = h.JumpHeight
 local speedEnabled = false
 local defaultMultiplier = 0.5
 local walkSpeedMultiplier = defaultMultiplier
@@ -351,6 +350,7 @@ rs.Heartbeat:Connect(function(dt)
         updateFlyMovement(dt)
     end
     if speedEnabled then
+        local humanoid = localPlayer.Character:FindFirstChild("Humanoid")
         local moveDirection = humanoid.MoveDirection
         local hrp = localPlayer.Character:FindFirstChild("HumanoidRootPart")
         if moveDirection.Magnitude > 0 then
@@ -455,6 +455,12 @@ mainTab:AddSlider({
         AimbotFOV = val
     end
 })
+
+local tsbTab = library:AddTab("Tsb Character Changers")
+
+tsbTab:AddButton("saitama to gojo", function()
+    loadstring(game:HttpGet("https://pastebin.com/raw/jZHTybYw"))()
+end)
 
 --cleanup
 players.PlayerRemoving:Connect(function(p)
